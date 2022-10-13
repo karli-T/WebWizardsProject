@@ -19,5 +19,9 @@ app = Flask(__name__)
 def hello():
     return "Hello!!"
 
+@app.route("/", methods = ["GET"])
+def test():
+    return "TEST!!"
+
 if __name__ == "__main__":
-    app.run(debug=False, port=4200)
+    app.run(debug=False, host='0.0.0.0', port=8000)
