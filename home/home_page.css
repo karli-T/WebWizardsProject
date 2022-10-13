@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Silkscreen&display=swap');
+body {
+    background-color: #D6B0EC !important;
+    margin-bottom: 45px !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+.nav_bar {
+    background-color: #B565E3;
+    height: 80px;
+}
+
+.navbar-brand {
+    color: white;
+}
+
+
+.buttons {
+    padding-right: 15px;
+}
+
+.nav_btn {
+    padding: 5px 10px 5px 10px;
+    margin: 20px 20px 0px 20px;
+    width: 100px;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    color: black;
+    background-color: white;
+    font-size:large;
+    font-family: 'Montserrat', sans-serif;
+}
+.nav_btn:hover {
+    cursor: pointer;
+    background-color: #D6B0EC;
+    color: white;
+}
+.nav_btn:active {
+    cursor: pointer;
+    color: #FFF830;
+}
+
+.header h1{
+    display: flex;
+    font-family: 'Silkscreen', cursive;
+    justify-content: center;
+    align-items: center;
+    font-size: 60px;
+}
+
+.home_wrapper {
+    display: flex;
+    margin-top: 30px;
+}
+.hero_page_statement {
+    flex: 1;
+    margin-right: 30px;
+    margin-left: 30px;
+}
+.forms {
+    width: 350px;
+    margin: 20px 50px 0px 20px;
+}
+.register {
+    border-radius: 8px;
+    background-color: white;
+    border:solid;
+    border-width: 2px;
+    border-color: #B565E3;
+}
+.login {
+    border-radius: 8px;
+    background-color: white;
+    border:solid;
+    border-width: 2px;
+    border-color: #B565E3;
+}
+.register h2 {
+    padding-top: 15px;
+    text-align: center;
+}
+.login h2 {
+    padding-top: 15px;
+    text-align: center;
+}
+#sign_in {
+    margin-right: 20px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 10px 0px 10px 0px;
+    margin-left: 20px;
+}
+.input {
+    width: 300px;
+}
+
+.btn_div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 10px;
+}
+.submit_btn {
+    width: 100px;
+    border: solid;
+    border-radius: 6px;
+    border-width: 2px;
+    border-color: #B565E3;
+}
+
+.submit_btn:active {
+    background-color:#B565E3;
+    color: white;
+}
