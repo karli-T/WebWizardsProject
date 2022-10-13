@@ -1,0 +1,107 @@
+<!-- bootstrap used for navabar, etc.:  https://getbootstrap.com/ -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Wizards</title>
+    <link rel="stylesheet" type="text/css" href="home/home_page.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+<div class="nav_bar">
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img id="wizard_logo" src="images/wizard.png" alt="Wizard Icon" width="50" height="50">
+            </a>
+
+            <ul class="btns nav navbar-nav navbar-right">
+                <form class="buttons">
+                    <button id="navbar_btn" class="nav_btn" type="button" onclick="show_signup()">Sign Up</button>
+                    <button id="navbar_btn" class="nav_btn" type="button" onclick="show_login()">Login</button>
+                </form>
+            </ul>
+        </div>
+    </nav>
+</div>
+    
+
+<div class="header">
+    <h1>Web Wizards</h1>
+</div>
+
+<div class="home_wrapper">
+    <div class="hero_page_statement">
+        <h2>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut 
+            labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
+            nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit 
+            esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in 
+            culpa qui officia deserunt mollit anim id est laborum.</h2>
+    </div>
+    
+    <div class="forms">
+        <div id="register_form" class="register" style="display:block;">
+            <form action="/register" id="sign_in" method="post" enctype="multipart/form-data">
+                <h2>Sign Up</h2>
+                <div class="form-group">
+                    <label for="email" class="form_label">Email Address:</label>
+                    <input type="email" class="input" id="email_input" placeholder="Enter Email">
+                    <small id="email_warning" style="display:none;">Enter a valid email.</small>
+                </div>
+        
+                <div class="form-group">
+                    <label for="username" class="form_label">Username:</label>
+                    <input type="username" class="input" id="username_input" placeholder="Enter Username">
+                    <small id="username_warning" style="display:none;">Create a Unique Username.</small>
+                </div>
+        
+                <div class="form-group">
+                    <label for="password" class="form_label">Password:</label>
+                    <input type="password" class="input" id="password_input" placeholder="Enter Password">
+                    <small id="password_warning" style="display:none;">Password too weak.</small>
+                </div>
+        
+                <div class="form-group">
+                    <label for="re-enter password" class="form_label">Confirm Password:</label>
+                    <input type="re-enter password" class="input" id="password_input" placeholder="Confirm Password">
+                    <small id="password_warning" style="display:none;">Passwords don't match.</small>
+                </div>
+
+                <div class="btn_div">
+                    <button class="submit_btn" type="submit">Submit</button>
+                </div>
+             </form>
+        </div>
+    
+        <div id="login_form" class="login" style="display:none;">
+            <form action="/login" id="sign_in" method="post" enctype="multipart/form-data">
+                <h2>Login</h2>
+                <div class="form-group">
+                    <label for="username" class="form_label">Username:</label>
+                    <input type="username" class="input" id="username_input" placeholder="Enter Username">
+                    <small id="username_warning" style="display:none;">Username Does Not Exist.</small>
+                </div>
+        
+                <div class="form-group">
+                    <label for="password" class="form_label">Password:</label>
+                    <input type="password" class="input" id="password_input" placeholder="Enter Password">
+                    <small id="password_warning" style="display:none;">Password is Incorrect.</small>
+                </div>
+
+                <div class="btn_div">
+                    <button class="submit_btn" type="submit">Submit</button>
+                </div>
+             </form>
+        </div> 
+    </div>
+   
+</div>
+
+<script src="home/home_functions.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</body>
+</html>
