@@ -1,5 +1,5 @@
 # import Flask : https://flask.palletsprojects.com/en/2.2.x/quickstart/
-from flask import Flask
+from flask import Flask, render_template
 # pymongo database 
 from pymongo import MongoClient
 # json library to handle json objects
@@ -20,8 +20,8 @@ def hello():
     return "Hello!!"
 
 @app.route("/", methods = ["GET"])
-def test():
-    return "TEST!!"
+def index():
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=8000)
