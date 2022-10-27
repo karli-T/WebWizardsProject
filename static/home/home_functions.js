@@ -20,3 +20,4 @@ function show_signup() {
         login_form.style.display = "none"
     }
 }
+
