@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from bson.json_util import loads, dumps
 # import database.py
 import database
-import sys
+# import sys
 
 # Mongo Setup
 mongo_client = MongoClient("mongo")
@@ -32,6 +32,9 @@ def hello():
 
 @app.route("/", methods = ["GET"])
 def index():
+    # print(list(users_collection.find({},{'_id':0})))
+    # sys.stdout.flush()
+    # sys.stderr.flush()
     return render_template("index.html")
 
 @app.route("/hub", methods = ["GET"])
