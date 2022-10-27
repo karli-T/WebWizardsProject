@@ -1,5 +1,5 @@
 # import Flask : https://flask.palletsprojects.com/en/2.2.x/quickstart/
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, flash
 # pymongo database 
 from pymongo import MongoClient
 # json library to handle json objects
@@ -43,16 +43,20 @@ def register_user():
     password = request.form.get("reg_password")
 
     unique = database.check_unique(email,escape_html(username))
-    if(unique):
+    if(unique == "Unique"):
         database.add_user(email,escape_html(username),password,users_collection)
 
         return render_template("hub.html")
-    else:
-        return render_template("index.html")
+    elif(unique == "Username"):
+        flash('Username already taken.')
+        return redirect('/')
+    elif(unique == "Email")
+        flash('Email already being used.')
+        return redirect('/')
     
 # Receive POST request for login
 @app.route('/login', methods =["POST"])
-def register_user():
+def login():
     # request username input with name = log_username in HTML form
     username = request.form.get("log_username")
     # request password input with name = log_password in HTML form
@@ -61,9 +65,11 @@ def register_user():
     user = database.find_user(username,password,users_collection)
 
     if(user):
-        return render_template("hub.html")
+        flash('Welcome Back!')
+        return redirect('/')
     else:
-        return render_template("index.html")
+        flash('Invalid Email or Password!')
+        return return redirect('/')
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=8000)

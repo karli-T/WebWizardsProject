@@ -115,3 +115,7 @@ body {
     background-color:#B565E3;
     color: white;
 }
+
+.warning {
+    color: red;
+}

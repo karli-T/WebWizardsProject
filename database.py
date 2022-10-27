@@ -39,8 +39,8 @@ def check_unique(email,username,user_db):
     email = user_db.find_one({'email':username},{'_id':0})
 
     if(username):
-        return False
+        return "Username"
     elif(email):
-        return False
+        return "Email"
     else:
-        return True
+        return "Unique"

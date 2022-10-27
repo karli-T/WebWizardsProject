@@ -32,8 +32,27 @@ function valid_email(email) {
 }
 
 function validate_form() {
-    let password = document.forms["myForm"]["fname"].value;
-    let re_enter = document.forms["myForm"]["fname"].value;
-    let email = document.forms["myForm"]["fname"].value;
+    let password = document.forms["register_form"]["reg_password"].value;
+    let re_enter = document.forms["register_form"]["re-enter"].value;
+    let email = document.forms["register_form"]["reg_email"].value;
+
+    email_validation = valid_email(email);
+    if(!email_validation){
+        const email_warning = document.getElementById("email_warning");
+        email_warning.style.display = "block"
+        return False;
+    }
+    if(password.length < 8){
+        const password_warning = document.getElementById("password_warning");
+        password_warning.style.display = "block"
+        return False;
+    }
+    if(password != re_enter){
+        const match = document.getElementById("match_warning");
+        match.style.display = "block"
+        return False;
+    }
+
+    return True
 }
 

@@ -3,7 +3,7 @@
 <html>
 <head>
     <title>Web Wizards</title>
-    <link rel="stylesheet" type="text/css" href="static/home/home_page.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/home/home_page.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +15,7 @@
     <nav class="navbar navbar-expand-lg bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <img id="wizard_logo" src="static/images/wizard.png" alt="Wizard Icon" width="50" height="50">
+                <img id="wizard_logo" src="/static/images/wizard.png" alt="Wizard Icon" width="50" height="50">
             </a>
 
             <ul class="btns nav navbar-nav navbar-right">
@@ -27,7 +27,14 @@
         </div>
     </nav>
 </div>
-    
+
+{% with messages = get_flashed_messages() %}
+   {% if messages %}
+      {% for message in messages %}
+         {{ message }}
+      {% endfor %}
+   {% endif %}
+{% endwith %}
 
 <div class="header">
     <h1>Web Wizards</h1>
@@ -44,30 +51,30 @@
     
     <div class="forms">
         <div id="register_form" class="register" style="display:block;">
-            <form action="/register" name="register_form" id="sign_in" method="post">
+            <form action="/register" name="register_form" onsubmit="return validate_form()" id="sign_in" method="post">
                 <h2>Sign Up</h2>
                 <div class="form-group">
                     <label for="email" class="form_label">Email Address:</label>
                     <input name="reg_email" type="email" class="input" id="email_input" placeholder="Enter Email" required>
-                    <small id="email_warning" style="display:none;">Enter a valid email.</small>
+                    <small class="warning" id="email_warning" style="display:none;">Enter a valid email.</small>
                 </div>
         
                 <div class="form-group">
                     <label for="username" class="form_label">Username:</label>
                     <input name="reg_username" type="username" class="input" id="username_input" placeholder="Enter Username" required>
-                    <small id="username_warning" style="display:none;">Create a Unique Username.</small>
+                    <small class="warning" id="username_warning" style="display:none;">Create a Unique Username.</small>
                 </div>
         
                 <div class="form-group">
                     <label for="password" class="form_label">Password:</label>
                     <input name="reg_password" type="password" class="input" id="password_input" placeholder="Enter Password" required>
-                    <small id="password_warning" style="display:none;">Password too weak.</small>
+                    <small class="warning" id="password_warning" style="display:none;">Password too weak.</small>
                 </div>
         
                 <div class="form-group">
                     <label for="re-enter password" class="form_label">Confirm Password:</label>
                     <input name="re-enter" type="re-enter password" class="input" id="password_input" placeholder="Confirm Password" required>
-                    <small id="password_warning" style="display:none;">Passwords don't match.</small>
+                    <small class="warning" id="match_warning" style="display:none;">Passwords don't match.</small>
                 </div>
 
                 <div class="btn_div">
@@ -82,13 +89,13 @@
                 <div class="form-group">
                     <label for="username" class="form_label">Username:</label>
                     <input name="log_username" type="username" class="input" id="username_input" placeholder="Enter Username" required>
-                    <small id="username_warning" style="display:none;">Username Does Not Exist.</small>
+                    <small class="warning" id="username_warning" style="display:none;">Username Does Not Exist.</small>
                 </div>
         
                 <div class="form-group">
                     <label for="password" class="form_label">Password:</label>
                     <input name="log_password" type="password" class="input" id="password_input" placeholder="Enter Password" required>
-                    <small id="password_warning" style="display:none;">Password is Incorrect.</small>
+                    <small class="warning" id="password_warning" style="display:none;">Password is Incorrect.</small>
                 </div>
 
                 <div class="btn_div">
@@ -100,7 +107,7 @@
    
 </div>
 
-<script src="static/home/home_functions.js"></script>
+<script src="/static/home/home_functions.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </body>
