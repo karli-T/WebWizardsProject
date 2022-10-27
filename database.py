@@ -26,7 +26,7 @@ def add_user(email,username,password,user_db):
 
 # function to check if user exists
 def find_user(username,password,user_db):
-    encrypted = database.encrypt_password(password)
+    encrypted = encrypt_password(password)
     user = user_db.find_one({'username':username,'password':encrypted,'active':'1'},{'_id':0})
     if(user):
         return True
@@ -39,8 +39,8 @@ def check_unique(email,username,user_db):
     email = user_db.find_one({'email':username},{'_id':0})
 
     if(username):
-        return True
-    elif(email):
-        return True
-    else:
         return False
+    elif(email):
+        return False
+    else:
+        return True

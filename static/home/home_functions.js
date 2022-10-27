@@ -21,3 +21,19 @@ function show_signup() {
     }
 }
 
+function valid_email(email) {
+    reg_expression = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    valid = email.match(reg_expression)
+    
+    if(!valid){
+        return False
+    }
+    return True
+}
+
+function validate_form() {
+    let password = document.forms["myForm"]["fname"].value;
+    let re_enter = document.forms["myForm"]["fname"].value;
+    let email = document.forms["myForm"]["fname"].value;
+}
+

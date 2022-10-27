@@ -11,7 +11,7 @@ import database
 mongo_client = MongoClient("mongo")
 db = mongo_client["WebWizards"]
 
-# users attributes: {"user_id":"","email":"","username":"","password":"","active":""}
+# users attributes: {"user_id":"","email":"","username":"","password":"","active":"","lobby":"","best_score":""}
 # more will be added once more user attributes decided for game
 users_collection = db["users"]
 users_id_collection = db["user_id"]
@@ -42,11 +42,13 @@ def register_user():
     # request password input with name = reg_password in HTML form
     password = request.form.get("reg_password")
 
+    unique = database.check_unique(email,escape_html(username))
+    if(unique):
+        database.add_user(email,escape_html(username),password,users_collection)
 
-
-    database.add_user(email,escape_html(username),password,users_collection)
-
-    return render_template("lobby.html")
+        return render_template("hub.html")
+    else:
+        return render_template("index.html")
     
 # Receive POST request for login
 @app.route('/login', methods =["POST"])
@@ -59,7 +61,7 @@ def register_user():
     user = database.find_user(username,password,users_collection)
 
     if(user):
-        return render_template("lobby.html")
+        return render_template("hub.html")
     else:
         return render_template("index.html")
 

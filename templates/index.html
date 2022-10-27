@@ -44,29 +44,29 @@
     
     <div class="forms">
         <div id="register_form" class="register" style="display:block;">
-            <form action="/register" id="sign_in" method="post">
+            <form action="/register" name="register_form" id="sign_in" method="post">
                 <h2>Sign Up</h2>
                 <div class="form-group">
                     <label for="email" class="form_label">Email Address:</label>
-                    <input name="reg_email" type="email" class="input" id="email_input" placeholder="Enter Email">
+                    <input name="reg_email" type="email" class="input" id="email_input" placeholder="Enter Email" required>
                     <small id="email_warning" style="display:none;">Enter a valid email.</small>
                 </div>
         
                 <div class="form-group">
                     <label for="username" class="form_label">Username:</label>
-                    <input name="reg_username" type="username" class="input" id="username_input" placeholder="Enter Username">
+                    <input name="reg_username" type="username" class="input" id="username_input" placeholder="Enter Username" required>
                     <small id="username_warning" style="display:none;">Create a Unique Username.</small>
                 </div>
         
                 <div class="form-group">
                     <label for="password" class="form_label">Password:</label>
-                    <input name="reg_password" type="password" class="input" id="password_input" placeholder="Enter Password">
+                    <input name="reg_password" type="password" class="input" id="password_input" placeholder="Enter Password" required>
                     <small id="password_warning" style="display:none;">Password too weak.</small>
                 </div>
         
                 <div class="form-group">
                     <label for="re-enter password" class="form_label">Confirm Password:</label>
-                    <input name="re-enter" type="re-enter password" class="input" id="password_input" placeholder="Confirm Password">
+                    <input name="re-enter" type="re-enter password" class="input" id="password_input" placeholder="Confirm Password" required>
                     <small id="password_warning" style="display:none;">Passwords don't match.</small>
                 </div>
 
@@ -76,18 +76,18 @@
              </form>
         </div>
     
-        <div id="login_form" class="login" style="display:none;">
+        <div id="login_form" name="login_form" class="login" style="display:none;">
             <form action="/login" id="sign_in" method="post">
                 <h2>Login</h2>
                 <div class="form-group">
                     <label for="username" class="form_label">Username:</label>
-                    <input name="log_username" type="username" class="input" id="username_input" placeholder="Enter Username">
+                    <input name="log_username" type="username" class="input" id="username_input" placeholder="Enter Username" required>
                     <small id="username_warning" style="display:none;">Username Does Not Exist.</small>
                 </div>
         
                 <div class="form-group">
                     <label for="password" class="form_label">Password:</label>
-                    <input name="log_password" type="password" class="input" id="password_input" placeholder="Enter Password">
+                    <input name="log_password" type="password" class="input" id="password_input" placeholder="Enter Password" required>
                     <small id="password_warning" style="display:none;">Password is Incorrect.</small>
                 </div>
 
