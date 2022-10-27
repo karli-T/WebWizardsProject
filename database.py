@@ -21,7 +21,8 @@ def encrypt_password(password):
 # if active = 0, user is deleted (still want to keep their data)
 def add_user(email,username,password,user_db):
     new_id = current_id(user_db)
-    input = {"user_id":new_id,"email":email,"username":username,"password":password,"active":1}
+    encrypted = encrypt_password(password)
+    input = {"user_id":new_id,"email":email,"username":username,"password":encrypted,"active":1}
     user_db.insert_one(input)
 
 # function to check if user exists
@@ -36,7 +37,7 @@ def find_user(username,password,user_db):
 # function to check if email and username is unique
 def check_unique(email,username,user_db):
     username = user_db.find_one({'username':username},{'_id':0})
-    email = user_db.find_one({'email':username},{'_id':0})
+    email = user_db.find_one({'email':email},{'_id':0})
 
     if(username):
         return "Username"

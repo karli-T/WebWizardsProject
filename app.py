@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from bson.json_util import loads, dumps
 # import database.py
 import database
+import sys
 
 # Mongo Setup
 mongo_client = MongoClient("mongo")
@@ -23,6 +24,7 @@ def escape_html(comment):
 
 # Flask Setup
 app = Flask(__name__)
+app.config['SECRET_KEY'] = '3333333333'
 
 @app.route("/hello", methods = ["GET"])
 def hello():
@@ -31,6 +33,11 @@ def hello():
 @app.route("/", methods = ["GET"])
 def index():
     return render_template("index.html")
+
+@app.route("/hub", methods = ["GET"])
+def hub():
+    return render_template("hub.html")
+
 
 # Receive POST request for registering
 @app.route('/register', methods =["POST"])
@@ -42,17 +49,16 @@ def register_user():
     # request password input with name = reg_password in HTML form
     password = request.form.get("reg_password")
 
-    unique = database.check_unique(email,escape_html(username))
+    unique = database.check_unique(email,escape_html(username),users_collection)
     if(unique == "Unique"):
         database.add_user(email,escape_html(username),password,users_collection)
-
-        return render_template("hub.html")
+        return redirect("/hub")
     elif(unique == "Username"):
         flash('Username already taken.')
-        return redirect('/')
+        return render_template("index.html")
     elif(unique == "Email"):
         flash('Email already being used.')
-        return redirect('/')
+        return render_template("index.html")
     
 # Receive POST request for login
 @app.route('/login', methods =["POST"])
@@ -65,11 +71,10 @@ def login():
     user = database.find_user(username,password,users_collection)
 
     if(user):
-        flash('Welcome Back!')
-        return redirect('/')
+        return redirect("/hub")
     else:
         flash('Invalid Email or Password!')
-        return redirect('/')
+        return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=8000)

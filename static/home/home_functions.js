@@ -21,38 +21,54 @@ function show_signup() {
     }
 }
 
-function valid_email(email) {
-    reg_expression = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    valid = email.match(reg_expression)
+// function valid_email(email) {
+//     reg_expression = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+//     valid = email.match(reg_expression)
     
-    if(!valid){
-        return False
-    }
-    return True
-}
+//     if(!valid){
+//         return False
+//     }
+//     return True
+// }
 
 function validate_form() {
     let password = document.forms["register_form"]["reg_password"].value;
     let re_enter = document.forms["register_form"]["re-enter"].value;
-    let email = document.forms["register_form"]["reg_email"].value;
+    // let email = document.forms["register_form"]["reg_email"].value;
 
-    email_validation = valid_email(email);
-    if(!email_validation){
-        const email_warning = document.getElementById("email_warning");
-        email_warning.style.display = "block"
-        return False;
-    }
-    if(password.length < 8){
+    // email_validation = valid_email(email);
+    // if(!email_validation){
+    //     const email_warning = document.getElementById("email_warning");
+    //     email_warning.style.display = "block"
+    //     return False;
+    // }
+    // if password is weak, but passwords match, show weak warning, else show both
+    if(password.length < 5 && password == re_enter){
         const password_warning = document.getElementById("password_warning");
         password_warning.style.display = "block"
-        return False;
-    }
-    if(password != re_enter){
+        document.getElementById("match_warning").style.display = "none"
+        return false;
+    }else if(password.length < 5 && password != re_enter){
+        const password_warning = document.getElementById("password_warning");
+        password_warning.style.display = "block"
         const match = document.getElementById("match_warning");
         match.style.display = "block"
-        return False;
+        return false
+    }
+    // if passwords don't match, but password strong, show match warning, else show both
+    if(password != re_enter && password.length >= 5){
+        const match = document.getElementById("match_warning");
+        match.style.display = "block"
+        document.getElementById("password_warning").style.display = "none"
+        return false;
+    }else if(password != re_enter && password.length < 5){
+        const password_warning = document.getElementById("password_warning");
+        password_warning.style.display = "block"
+        const match = document.getElementById("match_warning");
+        match.style.display = "block"
+        return false
     }
 
-    return True
+    return true
 }
 

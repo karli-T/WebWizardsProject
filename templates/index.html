@@ -10,7 +10,16 @@
 </head>
 
 <body>
-
+<!-- flash messages template from: https://flask.palletsprojects.com/en/1.1.x/patterns/flashing/ -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    {% for message in messages %}
+    <div class="flashes">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+{% block body %}
+{% endblock %}
 <div class="nav_bar">
     <nav class="navbar navbar-expand-lg bg-light">
         <div class="container-fluid">
@@ -27,15 +36,6 @@
         </div>
     </nav>
 </div>
-
-{% with messages = get_flashed_messages() %}
-   {% if messages %}
-      {% for message in messages %}
-         {{ message }}
-      {% endfor %}
-   {% endif %}
-{% endwith %}
-
 <div class="header">
     <h1>Web Wizards</h1>
 </div>
@@ -73,7 +73,7 @@
         
                 <div class="form-group">
                     <label for="re-enter password" class="form_label">Confirm Password:</label>
-                    <input name="re-enter" type="re-enter password" class="input" id="password_input" placeholder="Confirm Password" required>
+                    <input name="re-enter" type="password" class="input" id="password_input" placeholder="Confirm Password" required>
                     <small class="warning" id="match_warning" style="display:none;">Passwords don't match.</small>
                 </div>
 

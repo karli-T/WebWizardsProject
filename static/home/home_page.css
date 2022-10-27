@@ -119,3 +119,11 @@ body {
 .warning {
     color: red;
 }
+
+.flashes {
+    font-size: 25px;
+    font-weight: bolder;
+    text-align: center;
+    height: 60px;
+    background-color: #fa7380;
+}
