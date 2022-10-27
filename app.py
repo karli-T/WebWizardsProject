@@ -1,5 +1,5 @@
 # import Flask : https://flask.palletsprojects.com/en/2.2.x/quickstart/
-from flask import Flask, request, render_template, flash
+from flask import Flask, request, render_template, flash, redirect
 # pymongo database 
 from pymongo import MongoClient
 # json library to handle json objects
@@ -50,7 +50,7 @@ def register_user():
     elif(unique == "Username"):
         flash('Username already taken.')
         return redirect('/')
-    elif(unique == "Email")
+    elif(unique == "Email"):
         flash('Email already being used.')
         return redirect('/')
     
@@ -69,7 +69,7 @@ def login():
         return redirect('/')
     else:
         flash('Invalid Email or Password!')
-        return return redirect('/')
+        return redirect('/')
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=8000)
