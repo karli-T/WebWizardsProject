@@ -1,0 +1,34 @@
+<!-- bootstrap used for navabar, etc.:  https://getbootstrap.com/ -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Web Wizards Hub</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script src="/static/home/game_functions.js"></script>
+
+
+<div class="header">
+    <h1>Game</h1>
+</div>
+
+<div>
+    <label for="game-input">Type Here! </label>
+    <input id="game-input" type="text" name="gameText">
+
+    <button onclick="sendMessage()">Send</button>
+
+    <div id="game-inputs"></div>
+
+</div>
+
+
+</body>
+</html>

@@ -6,7 +6,8 @@ from pymongo import MongoClient
 from bson.json_util import loads, dumps
 # import database.py
 import database
-# import sys
+# import socketIO for websockets
+from flask_sock import Sock
 
 # Mongo Setup
 mongo_client = MongoClient("mongo")
@@ -17,33 +18,44 @@ db = mongo_client["WebWizards"]
 users_collection = db["users"]
 users_id_collection = db["user_id"]
 
+
 # code from Jesse's Lecture on HTML Injection
 def escape_html(comment):
-    stripped = comment.replace('&',"&amp;").replace('<',"&lt;").replace('>',"&gt;")
+    stripped = comment.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;")
     return stripped
+
 
 # Flask Setup
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '3333333333'
+socket = Sock(app)
 
-@app.route("/hello", methods = ["GET"])
+
+@app.route("/hello", methods=["GET"])
 def hello():
     return "Hello!!"
 
-@app.route("/", methods = ["GET"])
+
+@app.route("/", methods=["GET"])
 def index():
     # print(list(users_collection.find({},{'_id':0})))
     # sys.stdout.flush()
     # sys.stderr.flush()
     return render_template("index.html")
 
-@app.route("/hub", methods = ["GET"])
+
+@app.route("/hub", methods=["GET"])
 def hub():
     return render_template("hub.html")
 
 
+@app.route("/game", methods=["GET"])
+def game():
+    return render_template("game.html")
+
+
 # Receive POST request for registering
-@app.route('/register', methods =["POST"])
+@app.route('/register', methods=["POST"])
 def register_user():
     # request email input with name = reg_email in HTML form
     email = request.form.get("reg_email")
@@ -52,32 +64,41 @@ def register_user():
     # request password input with name = reg_password in HTML form
     password = request.form.get("reg_password")
 
-    unique = database.check_unique(email,escape_html(username),users_collection)
-    if(unique == "Unique"):
-        database.add_user(email,escape_html(username),password,users_collection)
+    unique = database.check_unique(email, escape_html(username), users_collection)
+    if (unique == "Unique"):
+        database.add_user(email, escape_html(username), password, users_collection)
         return redirect("/hub")
-    elif(unique == "Username"):
+    elif (unique == "Username"):
         flash('Username already taken.')
         return render_template("index.html")
-    elif(unique == "Email"):
+    elif (unique == "Email"):
         flash('Email already being used.')
         return render_template("index.html")
-    
+
+
 # Receive POST request for login
-@app.route('/login', methods =["POST"])
+@app.route('/login', methods=["POST"])
 def login():
     # request username input with name = log_username in HTML form
     username = request.form.get("log_username")
     # request password input with name = log_password in HTML form
     password = request.form.get("log_password")
 
-    user = database.find_user(username,password,users_collection)
+    user = database.find_user(username, password, users_collection)
 
-    if(user):
+    if (user):
         return redirect("/hub")
     else:
         flash('Invalid Email or Password!')
         return render_template("index.html")
+
+
+@socket.route(path='/websocket')
+def echo(sock):
+    while True:
+        data = sock.receive()
+        sock.send(data)
+
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=8000)
