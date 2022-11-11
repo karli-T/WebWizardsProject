@@ -17,3 +17,7 @@ function sendMessage(){
     }
 }
 
+socket.onmessage = function (message)  {
+    inputs = document.getElementById('game-inputs');
+    inputs.innerHTML += "<b>" + message.data + "<br/>";
+}
