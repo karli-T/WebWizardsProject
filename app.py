@@ -42,8 +42,7 @@ def index():
 
 @app.route("/hub", methods=["GET"])
 def hub():
-    profile = request.args['profile']  # counterpart for url_for()
-    return render_template("hub.html",profile=profile)
+    return render_template("hub.html",user="kiki",best_score="100")
 
 
 @app.route("/game", methods=["GET"])
@@ -64,16 +63,18 @@ def register_user():
 
     unique = database.check_unique(email, username, users_collection)
 
+
     if (unique == "Unique"):
         database.add_user(email, username, password, users_collection)
-        profile = {"username":username,"best_score":'0'}
-        redirect(url_for('.hub',profile=profile))
+        # profile = {"username":username,"best_score":"0"}
+        return redirect('hub')
     elif (unique == "Username"):
         flash('Username already taken.')
         return render_template("index.html")
     elif (unique == "Email"):
         flash('Email already being used.')
         return render_template("index.html")
+    return render_template("index.html")
 
 
 # Receive POST request for login
@@ -88,9 +89,9 @@ def login():
     user = database.find_user(username, password, users_collection)
 
     if (user):
-        get_score = users_collection.find_one({"username":username,"active":1},{"_id":0})
-        profile = {"username":username,"best_score":get_score["best_score"]}
-        redirect(url_for('.hub',profile=profile))
+        # get_score = users_collection.find_one({"username":username},{"_id":0})
+        # profile = {"username":username,"best_score":get_score["best_score"]}
+        return redirect('/hub')
     else:
         flash('Invalid Email or Password!')
         return render_template("index.html")
