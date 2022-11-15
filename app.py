@@ -1,5 +1,5 @@
 # import Flask : https://flask.palletsprojects.com/en/2.2.x/quickstart/
-from flask import Flask, request, render_template, flash, redirect
+from flask import Flask, request, render_template, flash, redirect, url_for
 # pymongo database 
 from pymongo import MongoClient
 # json library to handle json objects
@@ -17,7 +17,6 @@ db = mongo_client["WebWizards"]
 # more will be added once more user attributes decided for game
 users_collection = db["users"]
 users_id_collection = db["user_id"]
-
 
 # code from Jesse's Lecture on HTML Injection
 def escape_html(comment):
@@ -38,15 +37,13 @@ def hello():
 
 @app.route("/", methods=["GET"])
 def index():
-    # print(list(users_collection.find({},{'_id':0})))
-    # sys.stdout.flush()
-    # sys.stderr.flush()
     return render_template("index.html")
 
 
 @app.route("/hub", methods=["GET"])
 def hub():
-    return render_template("hub.html")
+    profile = request.args['profile']  # counterpart for url_for()
+    return render_template("hub.html",profile=profile)
 
 
 @app.route("/game", methods=["GET"])
@@ -61,13 +58,16 @@ def register_user():
     email = request.form.get("reg_email")
     # request username input with name = reg_username in HTML form
     username = request.form.get("reg_username")
+    username = escape_html(username)
     # request password input with name = reg_password in HTML form
     password = request.form.get("reg_password")
 
-    unique = database.check_unique(email, escape_html(username), users_collection)
+    unique = database.check_unique(email, username, users_collection)
+
     if (unique == "Unique"):
-        database.add_user(email, escape_html(username), password, users_collection)
-        return redirect("/hub")
+        database.add_user(email, username, password, users_collection)
+        profile = {"username":username,"best_score":'0'}
+        redirect(url_for('.hub',profile=profile))
     elif (unique == "Username"):
         flash('Username already taken.')
         return render_template("index.html")
@@ -81,13 +81,16 @@ def register_user():
 def login():
     # request username input with name = log_username in HTML form
     username = request.form.get("log_username")
+    username = escape_html(username)
     # request password input with name = log_password in HTML form
     password = request.form.get("log_password")
 
     user = database.find_user(username, password, users_collection)
 
     if (user):
-        return redirect("/hub")
+        get_score = users_collection.find_one({"username":username,"active":1},{"_id":0})
+        profile = {"username":username,"best_score":get_score["best_score"]}
+        redirect(url_for('.hub',profile=profile))
     else:
         flash('Invalid Email or Password!')
         return render_template("index.html")

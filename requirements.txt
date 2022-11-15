@@ -1,3 +1,4 @@
 pymongo~=4.0.1
 Flask
 flask-socketio
+fask-sock

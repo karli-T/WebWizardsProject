@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Web Wizards Hub</title>
+    <link rel="stylesheet" type="text/css" href="./hub.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,6 +15,39 @@
 <div class="header">
     <h1>Hub</h1>
 </div>
+<div class="profile_box" id="profile">
+    <h2>{{ profile.username }}</h2>
+    <p><b>Personal Best:</b> {{ profile.best_score }} seconds</p>
+</div>
+
+</br>
+
+<button id="create_lobby_btn">Create Lobby</button>
+</br>
+</br>
+<div class="wrapper">
+    <div class="column" id="leaderboard_div">
+        <h2>Leaderboard</h2>
+        </br>
+        </br>
+        <ul class="list_items" id="leaderboard_list">
+            {% for l in leaderboard: %}
+            <li id="player_info">{{ l.username }} : {{ l.score }} seconds</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="column" id="hub_div">
+        <h2>Lobbies</h2>
+        </br>
+        </br>
+        <ul class="list_items" id="lobby_list">
+            {% for l in lobbies: %}
+            <li id="lobby_info">{{ l }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>

@@ -22,15 +22,15 @@ def encrypt_password(password):
 def add_user(email,username,password,user_db):
     new_id = current_id(user_db)
     encrypted = encrypt_password(password)
-    input = {"user_id":new_id,"email":email,"username":username,"password":encrypted,"active":1}
+    input = {"user_id":new_id,"email":email,"username":username,"password":encrypted,"active":1,"best_score":0}
     user_db.insert_one(input)
 
 # function to check if user exists
 def find_user(username,password,user_db):
     encrypted = encrypt_password(password)
-    print(list(user_db.find({},{'_id':0})))
-    sys.stdout.flush()
-    sys.stderr.flush()
+    # print(list(user_db.find({},{'_id':0})))
+    # sys.stdout.flush()
+    # sys.stderr.flush()
     user = user_db.find_one({"username":username,"password":encrypted,"active":1},{"_id":0})
 
     if(user):
