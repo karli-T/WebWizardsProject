@@ -39,10 +39,11 @@ def hello():
 def index():
     return render_template("index.html")
 
-
-@app.route("/hub", methods=["GET"])
-def hub():
-    return render_template("hub.html",user="kiki",best_score="100")
+# Receive GET request to user's hub
+# sends of user dictionary with profile info
+@app.route("/hub/<user>", methods=["GET"])
+def hub(user):
+    return render_template("hub.html",user=loads(user))
 
 
 @app.route("/game", methods=["GET"])
@@ -57,17 +58,21 @@ def register_user():
     email = request.form.get("reg_email")
     # request username input with name = reg_username in HTML form
     username = request.form.get("reg_username")
+    # need to escape username
     username = escape_html(username)
     # request password input with name = reg_password in HTML form
     password = request.form.get("reg_password")
 
+    # calls function to check if email and username are already used
     unique = database.check_unique(email, username, users_collection)
 
 
     if (unique == "Unique"):
+        # add user to database
         database.add_user(email, username, password, users_collection)
-        # profile = {"username":username,"best_score":"0"}
-        return redirect('hub')
+        info = {"name":username,"score":"0"}
+        # redirect to hub with profile info
+        return redirect(url_for('hub', user=dumps(info)))
     elif (unique == "Username"):
         flash('Username already taken.')
         return render_template("index.html")
@@ -82,16 +87,19 @@ def register_user():
 def login():
     # request username input with name = log_username in HTML form
     username = request.form.get("log_username")
+    # need to escape username
     username = escape_html(username)
     # request password input with name = log_password in HTML form
     password = request.form.get("log_password")
 
+    # calls function to find if user exists
     user = database.find_user(username, password, users_collection)
 
     if (user):
-        # get_score = users_collection.find_one({"username":username},{"_id":0})
-        # profile = {"username":username,"best_score":get_score["best_score"]}
-        return redirect('/hub')
+        # get best score of user to pass to redirect
+        get_score = users_collection.find_one({"username":username},{"_id":0})
+        info= {"name":username,"score":get_score["best_score"]}
+        return redirect(url_for('hub', user=dumps(info)))
     else:
         flash('Invalid Email or Password!')
         return render_template("index.html")
