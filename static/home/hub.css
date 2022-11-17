@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Silkscreen&display=swap');
+body {
+    background-color: #D6B0EC !important;
+    margin-bottom: 45px !important;
+    font-family: 'Montserrat', sans-serif !important;
+    margin-left: 20px !important;
+}
+h1 {
+    display: flex !important;
+    font-family: 'Silkscreen', cursive !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 60px !important;
+}
+.profile_box {
+    width: 30%;
+    text-align: center;
+    padding: 8px;
+    border-radius: 15px;
+    border: solid 2px #B565E3;
+}
+.profile_box p {
+    font-size:20px;
+}
+.wrapper {
+    display: flex;
+    margin-top: 30px;
+}
+#create_lobby_btn {
+    float: right;
+    margin-right: 40px;
+    padding: 4px;
+    height:60px;
+    width: 150px;
+    font-size: 20px;
+}
+#leaderboard_div {
+    width: 30%;
+    padding: 8px;
+    box-shadow: inset 2px 2px 4px #B565E3;
+    background-color: #cd93ee;
+}
+#hub_div {
+    flex: 1;
+    margin: 0px 40px 0px 20px;
+    padding: 8px;
+}
+.list_items {
+    list-style: none;
+    font-size: 21px;
+}

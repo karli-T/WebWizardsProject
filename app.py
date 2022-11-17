@@ -1,5 +1,5 @@
 # import Flask : https://flask.palletsprojects.com/en/2.2.x/quickstart/
-from flask import Flask, request, render_template, flash, redirect
+from flask import Flask, request, render_template, flash, redirect, url_for, make_response
 # pymongo database 
 from pymongo import MongoClient
 # json library to handle json objects
@@ -31,27 +31,40 @@ app.config['SECRET_KEY'] = '3333333333'
 socket = Sock(app)
 
 
-@app.route("/hello", methods=["GET"])
-def hello():
-    return "Hello!!"
-
-
 @app.route("/", methods=["GET"])
 def index():
-    # print(list(users_collection.find({},{'_id':0})))
-    # sys.stdout.flush()
-    # sys.stderr.flush()
-    return render_template("index.html")
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return render_template("index.html")
+    else:
+        return redirect('/hub')
 
 
+# this path is used when cookies need to be set before requesting hub
+@app.route("/get-hub", methods=["GET"])
+def gethub():
+    return redirect('/hub')
+
+
+# Receive GET request to user's hub
+# sends of user dictionary with profile info
 @app.route("/hub", methods=["GET"])
 def hub():
-    return render_template("hub.html")
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        info = {"name": request_info['username'], "score": request_info['score']}
+        return render_template("hub.html", user=loads(dumps(info)))
 
 
 @app.route("/game", methods=["GET"])
 def game():
-    return render_template("game.html")
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        return render_template("game.html")
 
 
 # Receive POST request for registering
@@ -61,19 +74,31 @@ def register_user():
     email = request.form.get("reg_email")
     # request username input with name = reg_username in HTML form
     username = request.form.get("reg_username")
-    # request password input with name = reg_password in HTML form
+    # need to escape username
+    username = escape_html(username)
+    # request password input with name then validate password
     password = request.form.get("reg_password")
+    re_password = request.form.get("re-enter")
+    warning = database.validate_pw(password, re_password)
+    if not (warning is None):
+        flash(warning)
+        return redirect('/')
+    # calls function to check if email and username are already used
+    unique = database.check_unique(email, username, users_collection)
 
-    unique = database.check_unique(email, escape_html(username), users_collection)
-    if (unique == "Unique"):
-        database.add_user(email, escape_html(username), password, users_collection)
-        return redirect("/hub")
-    elif (unique == "Username"):
+    if unique == "Unique":
+        auth_token = database.add_user(email, username, password, users_collection)
+        # redirect to get-hub that way browser has chance to set auth cookie
+        resp = make_response(redirect('/get-hub'))
+        resp.headers['Set-Cookie'] = 'auth_token=' + auth_token
+        return resp
+    elif unique == "Username":
         flash('Username already taken.')
-        return render_template("index.html")
-    elif (unique == "Email"):
+        return redirect('/')
+    elif unique == "Email":
         flash('Email already being used.')
-        return render_template("index.html")
+        return redirect('/')
+    return redirect('/')
 
 
 # Receive POST request for login
@@ -81,16 +106,23 @@ def register_user():
 def login():
     # request username input with name = log_username in HTML form
     username = request.form.get("log_username")
+    # need to escape username
+    username = escape_html(username)
     # request password input with name = log_password in HTML form
     password = request.form.get("log_password")
 
+    # calls function to find if user exists
     user = database.find_user(username, password, users_collection)
 
-    if (user):
-        return redirect("/hub")
+    if user:
+        # generate new auth_token and set as cookie
+        auth_token = database.gen_new_auth_token(username, users_collection)
+        resp = make_response(redirect('/get-hub'))
+        resp.headers['Set-Cookie'] = 'auth_token=' + auth_token
+        return resp
     else:
-        flash('Invalid Email or Password!')
-        return render_template("index.html")
+        flash('Invalid Username or Password!')
+        return redirect('/')
 
 
 @socket.route(path='/websocket')
