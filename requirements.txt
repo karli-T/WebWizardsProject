@@ -1,4 +1,4 @@
 pymongo~=4.0.1
 Flask
-flask-socketio
 flask-sock==0.3.0
+bcrypt

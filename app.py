@@ -1,5 +1,5 @@
 # import Flask : https://flask.palletsprojects.com/en/2.2.x/quickstart/
-from flask import Flask, request, render_template, flash, redirect, url_for
+from flask import Flask, request, render_template, flash, redirect, url_for, make_response
 # pymongo database 
 from pymongo import MongoClient
 # json library to handle json objects
@@ -18,6 +18,7 @@ db = mongo_client["WebWizards"]
 users_collection = db["users"]
 users_id_collection = db["user_id"]
 
+
 # code from Jesse's Lecture on HTML Injection
 def escape_html(comment):
     stripped = comment.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;")
@@ -30,25 +31,40 @@ app.config['SECRET_KEY'] = '3333333333'
 socket = Sock(app)
 
 
-@app.route("/hello", methods=["GET"])
-def hello():
-    return "Hello!!"
-
-
 @app.route("/", methods=["GET"])
 def index():
-    return render_template("index.html")
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return render_template("index.html")
+    else:
+        return redirect('/hub')
+
+
+# this path is used when cookies need to be set before requesting hub
+@app.route("/get-hub", methods=["GET"])
+def gethub():
+    return redirect('/hub')
+
 
 # Receive GET request to user's hub
 # sends of user dictionary with profile info
-@app.route("/hub/<user>", methods=["GET"])
-def hub(user):
-    return render_template("hub.html",user=loads(user))
+@app.route("/hub", methods=["GET"])
+def hub():
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        info = {"name": request_info['username'], "score": request_info['score']}
+        return render_template("hub.html", user=loads(dumps(info)))
 
 
 @app.route("/game", methods=["GET"])
 def game():
-    return render_template("game.html")
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        return render_template("game.html")
 
 
 # Receive POST request for registering
@@ -60,26 +76,29 @@ def register_user():
     username = request.form.get("reg_username")
     # need to escape username
     username = escape_html(username)
-    # request password input with name = reg_password in HTML form
+    # request password input with name then validate password
     password = request.form.get("reg_password")
-
+    re_password = request.form.get("re-enter")
+    warning = database.validate_pw(password, re_password)
+    if not (warning is None):
+        flash(warning)
+        return redirect('/')
     # calls function to check if email and username are already used
     unique = database.check_unique(email, username, users_collection)
 
-
-    if (unique == "Unique"):
-        # add user to database
-        database.add_user(email, username, password, users_collection)
-        info = {"name":username,"score":"0"}
-        # redirect to hub with profile info
-        return redirect(url_for('hub', user=dumps(info)))
-    elif (unique == "Username"):
+    if unique == "Unique":
+        auth_token = database.add_user(email, username, password, users_collection)
+        # redirect to get-hub that way browser has chance to set auth cookie
+        resp = make_response(redirect('/get-hub'))
+        resp.headers['Set-Cookie'] = 'auth_token=' + auth_token
+        return resp
+    elif unique == "Username":
         flash('Username already taken.')
-        return render_template("index.html")
-    elif (unique == "Email"):
+        return redirect('/')
+    elif unique == "Email":
         flash('Email already being used.')
-        return render_template("index.html")
-    return render_template("index.html")
+        return redirect('/')
+    return redirect('/')
 
 
 # Receive POST request for login
@@ -95,14 +114,15 @@ def login():
     # calls function to find if user exists
     user = database.find_user(username, password, users_collection)
 
-    if (user):
-        # get best score of user to pass to redirect
-        get_score = users_collection.find_one({"username":username},{"_id":0})
-        info= {"name":username,"score":get_score["best_score"]}
-        return redirect(url_for('hub', user=dumps(info)))
+    if user:
+        # generate new auth_token and set as cookie
+        auth_token = database.gen_new_auth_token(username, users_collection)
+        resp = make_response(redirect('/get-hub'))
+        resp.headers['Set-Cookie'] = 'auth_token=' + auth_token
+        return resp
     else:
-        flash('Invalid Email or Password!')
-        return render_template("index.html")
+        flash('Invalid Username or Password!')
+        return redirect('/')
 
 
 @socket.route(path='/websocket')
