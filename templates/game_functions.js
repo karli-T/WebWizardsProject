@@ -1,16 +1,16 @@
 
-// const socket = new WebSocket('ws://' + window.location.host + '/websocket');
+const socket = new WebSocket('ws://' + window.location.host + '/websocket');
 
 // save both players info in a dictionary {"username":"","mark":""}
 // player1 should always be the lobby creator
-var player1 = {"username":"Wallow","mark":"X"};
-var player2 = {"username":"Shallow","mark":"O"};
+var player1 = {};
+var player2 = {};
 
 // holds info of curent players turn
-var curr_users_turn = {"username":"Shallow","mark":"O"};
+var curr_users_turn = {};
 
 // holds user's info
-var user = {"username":"Shallow","mark":"O"};
+var user = {};
 
 // function to validate a users click (if it is not their turn, their choice should not be sent)
 function user_turn(id){
@@ -93,26 +93,26 @@ window.onload=function(){
 };
 
 
-// //from HW code
-// document.addEventListener("keypress", function (event) {
-//     if (event.code === "Enter") {
-//         sendMessage();
-//     };
-// });
+//from HW code
+document.addEventListener("keypress", function (event) {
+    if (event.code === "Enter") {
+        sendMessage();
+    };
+});
 
-// function sendMessage(){
-//     const gameInput = document.getElementById('game-input');
-//     const gameText = gameInput.value;
-//     gameInput.value = "";
-//     if (gameText !== ""){
-//         socket.send(gameText)
-//     };
-// };
+function sendMessage(){
+    const gameInput = document.getElementById('game-input');
+    const gameText = gameInput.value;
+    gameInput.value = "";
+    if (gameText !== ""){
+        socket.send(gameText)
+    };
+};
 
-// socket.onmessage = function (message)  {
-//     inputs = document.getElementById('game-inputs');
-//     inputs.innerHTML += "<b>" + message.data + "<br/>";
-// };
+socket.onmessage = function (message)  {
+    inputs = document.getElementById('game-inputs');
+    inputs.innerHTML += "<b>" + message.data + "<br/>";
+};
 
 
 // function for game logic
