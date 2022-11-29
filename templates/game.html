@@ -2,8 +2,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Web Wizards Lobby</title>
+    <title>Web Wizards Game Page</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="game.css"/>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -12,13 +13,41 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-<script src="/static/home/game_functions.js"></script>
+<!-- <script src="/static/home/game_functions.js"></script> -->
+<script src="game_functions.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
 <div class="header">
-    <h1>Game</h1>
+    <h1>{{username}}'s Tic-Tac-Toe Room</h1>
 </div>
-
+</br></br>
+<div id="winner_div" style="display:none;">
+    <p id="winner_label">The Winner is {{username}}!</p>
+</div>
+<div id="curr_player_div" style="display:none;">
+    <p id="curr_player">{{username}}'s Turn!</p>
+</div>
+</br></br>
+<div class="game-container">
+    <table class="game_table">
+        <tr>
+            <td id="1" class="empty"></td>
+            <td id="2" class="empty"></td>
+            <td id="3" class="empty"></td>
+        </tr>
+        <tr>
+            <td id="4" class="empty"></td>
+            <td id="5" class="empty"></td>
+            <td id="6" class="empty"></td>
+        </tr>
+        <tr>
+            <td id="7" class="empty"></td>
+            <td id="8" class="empty"></td>
+            <td id="9" class="empty"></td>
+        </tr>
+    </table>
+</div>
+</br></br>
 <div>
     <label for="game-input">Type Here! </label>
     <input id="game-input" type="text" name="gameText">

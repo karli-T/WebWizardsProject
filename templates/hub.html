@@ -9,14 +9,16 @@
 </head>
 
 <body>
-
+    <form action="/logout" id="logout_form" method="get"></form>
+        <button id="logout_btn" type="submit">Logout</button>
+    </form>
 
 <div class="header">
     <h1>Hub</h1>
 </div>
 <div class="profile_box" id="profile">
     <h2>{{ user.name }}</h2>
-    <p><b>Personal Best:</b> {{ user.score }} seconds</p>
+    <p><b>Personal Best:</b> {{ user.score }} Wins</p>
 </div>
 
 </br>

@@ -13,7 +13,7 @@ from flask_sock import Sock
 mongo_client = MongoClient("mongo")
 db = mongo_client["WebWizards"]
 
-# users attributes: {"user_id":"","email":"","username":"","password":"","active":"","lobby":"","best_score":""}
+# users attributes: {"user_id":"","email":"","username":"","password":"","hashed_auth_token":"","active":"","lobby":"","best_score":""}
 # more will be added once more user attributes decided for game
 users_collection = db["users"]
 users_id_collection = db["user_id"]
@@ -123,7 +123,10 @@ def login():
     else:
         flash('Invalid Username or Password!')
         return redirect('/')
-
+# Receive GET request for logout       
+@app.route('logout',methods=["GET"])
+def logout():
+    return redirect('/')
 
 @socket.route(path='/websocket')
 def echo(sock):

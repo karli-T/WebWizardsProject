@@ -14,7 +14,7 @@ def current_id(id_database):
         return 1
 
 
-# encrypy passwords
+# encrypt passwords
 def encrypt(data):
     # encrypt password or auth token
     salt = bcrypt.gensalt()
