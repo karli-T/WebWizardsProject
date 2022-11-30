@@ -4,7 +4,7 @@
 <head>
     <title>Web Wizards Game Page</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="game.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/home/game.css"/>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -13,12 +13,13 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-<!-- <script src="/static/home/game_functions.js"></script> -->
-<script src="game_functions.js"></script>
+<script src="/static/home/game_functions.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
+<button id="leave_btn" onclick="leave_lobby()">Leave Room</button>
+
 <div class="header">
-    <h1>{{username}}'s Tic-Tac-Toe Room</h1>
+    <h1 id="owner_header">{{username}}'s Tic-Tac-Toe Room</h1>
 </div>
 </br></br>
 <div id="winner_div" style="display:none;">
