@@ -25,6 +25,7 @@ h1 {
 .wrapper {
     display: flex;
     margin-top: 30px;
+    height: 390px;
 }
 #create_lobby_btn {
     float: right;
@@ -39,6 +40,7 @@ h1 {
     padding: 8px;
     box-shadow: inset 2px 2px 4px #B565E3;
     background-color: #cd93ee;
+    overflow-block: scroll;
 }
 #hub_div {
     flex: 1;
@@ -48,4 +50,26 @@ h1 {
 .list_items {
     list-style: none;
     font-size: 21px;
+}
+
+.lobby-link {
+    text-decoration: none;
+    color: black;
+}
+
+.lobbies {
+    display: grid;
+    align-items: center !important;
+    font-family: 'Montserrat', sans-serif !important;
+    border-radius: 15px;
+    border: solid 2px #B565E3;
+    background-color: white !important;
+    font-size: 20px !important;
+    list-style: none;
+    overflow-block: scroll;
+}
+
+.join-lobby-button {
+    margin-left: 10px;
+    font-size: 15px !important;
 }

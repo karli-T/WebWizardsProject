@@ -1,13 +1,15 @@
 # import Flask : https://flask.palletsprojects.com/en/2.2.x/quickstart/
-from flask import Flask, request, render_template, flash, redirect, url_for, make_response
+from flask import Flask, request, render_template, flash, redirect, url_for, make_response, request
 # pymongo database 
 from pymongo import MongoClient
 # json library to handle json objects
 from bson.json_util import loads, dumps
 # import database.py
 import database
-# import socketIO for websockets
-from flask_sock import Sock
+# import simple_websocket
+import simple_websocket
+
+from secrets import token_urlsafe
 
 # Mongo Setup
 mongo_client = MongoClient("mongo")
@@ -17,6 +19,10 @@ db = mongo_client["WebWizards"]
 # more will be added once more user attributes decided for game
 users_collection = db["users"]
 users_id_collection = db["user_id"]
+lobby_collection = db['lobby_info']
+
+# keep track of the websockets each user is using
+user_websockets = {}
 
 
 # code from Jesse's Lecture on HTML Injection
@@ -28,7 +34,7 @@ def escape_html(comment):
 # Flask Setup
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '3333333333'
-socket = Sock(app)
+app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 5}
 
 
 @app.route("/", methods=["GET"])
@@ -55,7 +61,13 @@ def hub():
         return redirect('/')
     else:
         info = {"name": request_info['username'], "score": request_info['score']}
-        return render_template("hub.html", user=loads(dumps(info)))
+        leaderboard = database.get_leaderboard(users_collection)
+        all_lobbies = lobby_collection.find({})
+        users_to_join = []
+        for lobby in all_lobbies:
+            if len(lobby['members']) == 1:
+                users_to_join.append(lobby['members'][0])
+        return render_template("hub.html", user=loads(dumps(info)), leaderboard=leaderboard, lobbies=users_to_join)
 
 
 @app.route("/game", methods=["GET"])
@@ -90,7 +102,7 @@ def register_user():
         auth_token = database.add_user(email, username, password, users_collection)
         # redirect to get-hub that way browser has chance to set auth cookie
         resp = make_response(redirect('/get-hub'))
-        resp.headers['Set-Cookie'] = 'auth_token=' + auth_token
+        resp.headers['Set-Cookie'] = 'auth_token=' + auth_token + '; HttpOnly'
         return resp
     elif unique == "Username":
         flash('Username already taken.')
@@ -118,18 +130,92 @@ def login():
         # generate new auth_token and set as cookie
         auth_token = database.gen_new_auth_token(username, users_collection)
         resp = make_response(redirect('/get-hub'))
-        resp.headers['Set-Cookie'] = 'auth_token=' + auth_token
+        resp.headers['Set-Cookie'] = 'auth_token=' + auth_token + '; HttpOnly'
         return resp
     else:
         flash('Invalid Username or Password!')
         return redirect('/')
 
 
-@socket.route(path='/websocket')
-def echo(sock):
-    while True:
-        data = sock.receive()
-        sock.send(data)
+@app.route('/websocket', websocket=True)
+def echo():
+    ws = simple_websocket.Server(request.environ)
+    try:
+        while True:
+            data = ws.receive()
+            ws.send(data)
+    except simple_websocket.ConnectionClosed:
+        pass
+    return ''
+
+
+@app.route('/lobby-websocket', websocket=True)
+def lobby_websckt():
+    ws = simple_websocket.Server(request.environ)
+    request_info = database.is_valid_user(request, users_collection)
+    user = request_info['username']
+    user_websockets[user] = ws
+    userinfo = users_collection.find_one({'username': user})
+    lobby_id = userinfo['lobby_id']
+    lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
+    for member in lobby_members:
+        if member != user:
+            if member in user_websockets.keys():
+                if user_websockets[member]:
+                    user_websockets[member].send(user)
+                    ws.send(member)
+    try:
+        while True:
+            data = ws.receive()
+    except simple_websocket.ConnectionClosed:
+        print('here')
+        users_collection.update_one({'username': user}, {"$set": {'lobby_id': None}})
+        user_websockets[user] = None
+        lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
+        if len(lobby_members) == 1:
+            lobby_collection.delete_one({'lobby_id': lobby_id})
+            print('deleted')
+        else:
+            for member in lobby_members:
+                if member != user:
+                    if member in user_websockets.keys():
+                        if user_websockets[member]:
+                            user_websockets[member].send('')
+            lobby_members.remove(request_info['username'])
+            lobby_collection.update_one({'lobby_id': lobby_id}, {"$set": {'members': lobby_members}})
+    return ''
+
+
+@app.route("/lobby", methods=["GET"])
+def createLobby():
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        lobby_token = token_urlsafe(16)
+        member = request_info['username']
+        users_collection.update_one({'username': member}, {"$set": {'lobby_id': lobby_token}})
+        lobby_collection.insert_one({'lobby_id': lobby_token, 'members': [member]})
+        return render_template("lobby.html", member=member)
+
+
+@app.route("/join-lobby", methods=["POST"])
+def joinLobby():
+    request_info = database.is_valid_user(request, users_collection)
+    joiner = request_info['username']
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        host_info = users_collection.find_one({'username': request.form['lobby_host']})
+        if 'lobby_id' in host_info.keys():
+            if host_info['lobby_id']:
+                lobby = host_info['lobby_id']
+                users_collection.update_one({'username': joiner}, {"$set": {'lobby_id': lobby}})
+                members = lobby_collection.find_one({'lobby_id': lobby})['members']
+                members.append(joiner)
+                lobby_collection.update_one({'lobby_id': lobby}, {"$set": {'members': members}})
+                return render_template("lobby.html", member=joiner)
+        return redirect('/')
 
 
 if __name__ == "__main__":
