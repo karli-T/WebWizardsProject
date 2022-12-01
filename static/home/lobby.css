@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Silkscreen&display=swap');
+body {
+    background-color: #D6B0EC !important;
+    margin-bottom: 45px !important;
+    font-family: 'Montserrat', sans-serif !important;
+    margin-left: 20px !important;
+}
+h1 {
+    display: flex !important;
+    font-family: 'Silkscreen', cursive !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 60px !important;
+}
+
+.member-list {
+    margin-left: 200px;
+    margin-right: 200px;
+    align-items: center !important;
+    font-family: 'Montserrat', sans-serif !important;
+    border-radius: 15px;
+    border: solid 2px #B565E3;
+    background-color: white !important;
+    font-size: 20px !important;
+}
+
+.leave-lobby-btn {
+    float: right;
+    margin-right: 20px;
+    margin-left: 20px;
+    padding: 4px;
+    height:60px;
+    width: 150px;
+    font-size: 20px;
+    background-color: burlywood !important;
+}
+
+.start-game-btn {
+    float: left;
+    margin-right: 20px;
+    margin-left: 20px;
+    padding: 4px;
+    height:60px;
+    width: 150px;
+    font-size: 20px;
+    background-color: burlywood !important;
+}

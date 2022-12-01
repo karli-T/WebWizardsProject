@@ -16,6 +16,7 @@
 <div class="header">
     <h1>Hub</h1>
 </div>
+
 <div class="profile_box" id="profile">
     <h2>{{ user.name }}</h2>
     <p><b>Personal Best:</b> {{ user.score }} Wins</p>
@@ -23,29 +24,35 @@
 
 </br>
 
-<button id="create_lobby_btn">Create Lobby</button>
+<button id="create_lobby_btn" onclick="createHub()">
+   Create Lobby
+</button>
 </br>
 </br>
 <div class="wrapper">
     <div class="column" id="leaderboard_div">
         <h2>Leaderboard</h2>
-        </br>
-        </br>
         <ul class="list_items" id="leaderboard_list">
-    
+            {% for leader in leaderboard %}
+                <li>{{leader}}</li>
+            {% endfor %}
         </ul>
     </div>
-    <div class="column" id="hub_div">
+    <div id="hub_div">
         <h2 id="lobby_header">Lobbies</h2>
-        </br>
-        </br>
-        <ul class="list_items" id="lobby_list">
-
+        <ul class="lobbies" id="lobby_list">
+            {% for lobby in lobbies %}
+                <li style="display: flex">Join {{lobby}} Here
+                    <form action="/join-lobby" class="join-lobby-button" method="post" enctype="multipart/form-data">
+                        <button name="lobby_host" value={{lobby}}>Join</button>
+                    </form>
+                </li>
+            {% endfor %}
         </ul>
     </div>
 </div>
 
-
+<script src="/static/home/hub_functions.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </body>

@@ -108,7 +108,8 @@ def get_leaderboard(user_db):
         if 'best_score' in user.keys():
             leaderboard_all.append(user)
     leaderboard_all = sorted(leaderboard_all, key=lambda usr: usr['best_score'], reverse=True)
-    top_ten = list(map(lambda leader: leader['username'], leaderboard_all))
-    if len(top_ten) > 10:
-        return top_ten[:10]
-   #elif len(top_ten) < 10:
+    leaderboard = list(map(lambda leader: (leader['username'], leader['best_score']), leaderboard_all))
+    for i in range(len(leaderboard)):
+        leaderboard[i] = str(i + 1) + '. ' + leaderboard[i][0] + "  wins: " + str(leaderboard[i][1])
+    return leaderboard
+
