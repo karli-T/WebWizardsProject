@@ -124,7 +124,7 @@ def login():
         flash('Invalid Username or Password!')
         return redirect('/')
 # Receive GET request for logout       
-@app.route('logout',methods=["GET"])
+@app.route('/logout',methods=["GET"])
 def logout():
     return redirect('/')
 
