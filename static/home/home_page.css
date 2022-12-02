@@ -54,8 +54,19 @@ body {
 }
 .hero_page_statement {
     flex: 1;
-    margin-right: 30px;
+    margin-right: 60px;
     margin-left: 30px;
+}
+.hero_page_statement h2 {
+    font-size: 40px !important;
+    font-weight:lighter;
+    font-family: 'Silkscreen', cursive;
+}
+.hero_page_statement p {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 40px !important;
 }
 .forms {
     width: 350px;
