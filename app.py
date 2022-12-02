@@ -192,7 +192,7 @@ def lobby_websckt():
         while True:
             data = ws.receive()
             if data == 'start_game':
-                print(data)
+                # print(data)
                 lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
                 for member in lobby_members:
                     if member != user:
@@ -200,13 +200,13 @@ def lobby_websckt():
                             if user_websockets[member]:
                                 user_websockets[member].send('send to new game')
     except simple_websocket.ConnectionClosed:
-        print('here')
+        # print('here')
         users_collection.update_one({'username': user}, {"$set": {'lobby_id': None}})
         user_websockets[user] = None
         lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
         if len(lobby_members) == 1:
             lobby_collection.delete_one({'lobby_id': lobby_id})
-            print('deleted')
+            # print('deleted')
         else:
             for member in lobby_members:
                 if member != user:
@@ -265,8 +265,12 @@ def game_validation():
         else:
             return
 
-
-@app.route('/websocket', websocket=True)
+# types: players, board_change, next_turn, winner
+# // "{"type":"players","value":"GET PLAYERS"}"
+# // "{"type":"board_change","value":{"mark":"X","id":id}}"
+# // "{"type":"next_turn","value":next_user()}"
+# // "{"type":"winner","value":{"username":game_winner,"game_id":game_id}}"
+@app.route('/game-websocket', websocket=True)
 def game_websocket():
     ws = simple_websocket.Server(request.environ)
     request_info = database.is_valid_user(request, users_collection)
@@ -284,9 +288,33 @@ def game_websocket():
     try:
         while True:
             data = ws.receive()
+            # print(data)
+            message_recv = loads(data)
+            type = message_recv["type"]
+            send_data = {}
+            init = False
+            # print(game_websockets)
+            if type == "players":
+                init = True
+            elif type == "board_change":
+                send_data = message_recv
+            elif type == "next_turn":
+                send_data = message_recv
+            elif type == "winner":
+                send_data = message_recv
+                winner = (message_recv["value"])["username"]
+                if(winner == user):
+                    high_score = int((users_collection.find_one({"username": winner}, {"_id": 0}))["best_score"])
+                    users_collection.update_one({'username': winner}, {"$set": {'best_score': high_score+1}})
             for player in players:
                 if player != user and (player in game_websockets.keys()) and game_websockets[player]:
-                    game_websockets[player].send(data)
+                    if init:
+                        game_websockets[players[0]].send(dumps({"type":"players","value":{"members":players,"game_id":game_id,"player":players[0]}}))
+                        game_websockets[players[1]].send(dumps({"type":"players","value":{"members":players,"game_id":game_id,"player":players[1]}}))
+                        init = False
+                    else:
+                        game_websockets[players[0]].send(dumps(send_data))
+                        game_websockets[players[1]].send(dumps(send_data))
     except simple_websocket.ConnectionClosed:
         print('here')
         users_collection.update_one({'username': user}, {"$set": {'game_id': None}})

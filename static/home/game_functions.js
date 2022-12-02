@@ -2,7 +2,7 @@
 const socket = new WebSocket('ws://' + window.location.host + '/game-websocket');
 
 // save lobby id
-var lobby_id = 0;
+var game_id = "";
 
 // save both players info in a dictionary {"username":"","mark":""}
 // player1 should always be the lobby creator or first member in lobby array
@@ -26,37 +26,49 @@ function get_players(){
         socket.send(JSON.stringify({"type":"players","value":"GET PLAYERS"}))
     }
 }
-// JSON Object to request user info from server only if user variable is not updated
-// who is the client?
-function get_user(){
-    if(JSON.stringify(user) != '{}'){
-        socket.send(JSON.stringify({"type":"client","value":"GET CLIENT"}))
-    }
-}
+// request player info from server once connection is established
+socket.onopen = function(event) {
+    console.log('Player Connected');
+    get_players();
+};
+
 // received data sent from sockets
-// types: players, client, board_change, next_turn, winner
-// players updates the player variables and lobby_id for the game, receives lobby information
-// client updates the user variable for the game
+// types: players, board_change, next_turn, winner
+// "{"type":"players","value":"GET PLAYERS"}"
+// "{"type":"board_change","value":{"mark":"X","id":id}}"
+// "{"type":"next_turn","value":next_user()}"
+// "{"type":"winner","value":{"username":game_winner,"game_id":game_id}}"
+// players updates the player variables and game_id for the game, receives lobby information
 // board_change updates the HTML front-end for the game
 // next_turn updates the HTML displaying who's turn it is
 // winner updates the HTML displaying the winner
 socket.onmessage = function (ws_message)  {
     const recv = JSON.parse(ws_message.data);
     const type = recv.type
-    
+
+    var init = false
+
+    console.log(recv)
+
     switch(type) {
         case 'players':
+            // console.log(typeof recv.value)
             var members = (recv.value)["members"]
-            lobby_id = parseInt((recv.value)["lobby_id"])
+            var sender = (recv.value)["player"]
+
+            game_id = ((recv.value)["game_id"])
+
             player1 = {"username":members[0],"mark":"X"};
             player2 = {"username":members[1],"mark":"O"};
-            break;
-        case 'client':
-            if(recv.value == player1["username"]){
-                user = player1;
-            }else if(recv.value == player2["username"]){
-                user = player2;
+
+            if(sender == members[0]){
+                user = {"username":members[0],"mark":"X"};
+            }else if(sender == members[1]){
+                user = {"username":members[1],"mark":"O"};
             }
+            curr_users_turn = {"username":members[0],"mark":"X"};
+            init_game({"username":members[0],"mark":"X"});
+            init = true
             break;
         case 'board_change':
             var mark = (recv.value)["mark"];
@@ -71,143 +83,40 @@ socket.onmessage = function (ws_message)  {
             }
             break;
         case 'winner':
-            winner(recv.value);
+            winner(recv.value["username"]);
             break;
         default:
             console.log("received an invalid WS messageType");
     }
-    
 };
 // initialized important HTML parts and variables of the game
-function init_game(){
-    // if both players are present and no one has started
-    if(JSON.stringify(player1) != '{}' && JSON.stringify(player2) != '{}' && JSON.stringify(curr_users_turn) == '{}' && JSON.stringify(user) != '{}'){
-        curr_users_turn = player1;
-        var newuser = document.getElementById("curr_player").innerHTML.replace("{{username}}",player1["username"]);
-        document.getElementById("curr_player").innerHTML = newuser;
-        document.getElementById("curr_player_div").style.display = "block"
-
-        // name the room with player 1's username
-        var owner = document.getElementById("owner_header").innerHTML.replace("{{username}}",player1["username"]);
-        document.getElementById("owner_header").innerHTML = owner;
+function init_game(curr){
+    // console.log(JSON.stringify(player1))
+    // console.log(JSON.stringify(player2))
+    // console.log(curr["username"])
+    console.log(document.getElementById("curr_player").innerHTML)
+    // console.log(JSON.stringify(user))
+    var newuser = document.getElementById("curr_player").innerHTML.replace("username",curr["username"]);
+    document.getElementById("curr_player").innerHTML = newuser;
+    document.getElementById("curr_player_div").style.display = "block"
+    // console.log(newuser)
+    // name the room with curr players username (should be player1)
+    var owner = document.getElementById("owner_header").innerHTML.replace("owner",curr["username"]);
+    // console.log(owner)
+    document.getElementById("owner_header").innerHTML = owner;
 
         // console.log(curr_users_turn)
+}
+function click_cell(id){
+    if(user_turn(id)){
+        socket.send(JSON.stringify({"type":"board_change","value":{"mark":user["mark"],"id":id}}))
     }
 }
-// handles even listeners and data sent to sockets
-window.onload=function(){
-    var is_winner = false;
 
-    // request player info from server
-    get_players();
-    // request user(client) info from server
-    get_user();
-
-    // initialize game once both players are in lobby
-    init_game();
-
-    var user_mark = user["mark"];
-    document.getElementById("1").addEventListener("click",function(event){
-        if(user_turn("1")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"1"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    document.getElementById("2").addEventListener("click",function(event){
-        if(user_turn("2")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"2"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    document.getElementById("3").addEventListener("click",function(event){
-        if(user_turn("3")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"3"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    document.getElementById("4").addEventListener("click",function(event){
-        if(user_turn("4")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"4"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    document.getElementById("5").addEventListener("click",function(event){
-        if(user_turn("5")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"5"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    document.getElementById("6").addEventListener("click",function(event){
-        if(user_turn("6")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"6"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    document.getElementById("7").addEventListener("click",function(event){
-        if(user_turn("7")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"7"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    document.getElementById("8").addEventListener("click",function(event){
-        if(user_turn("8")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"8"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    document.getElementById("9").addEventListener("click",function(event){
-        if(user_turn("9")){
-            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user_mark,"id":"9"}}))
-            is_winner = game_event();
-            if(!is_winner){
-                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
-            }else{
-                socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"lobby_id":lobby_id}}))
-            }
-        }
-    });
-    
-};
+// window.onload=function(){
+//     // initialize game once both players are in game
+//     init_game();
+// }
 
 // function to validate a users click (if it is not their turn, their choice should not be sent)
 function user_turn(){
@@ -220,9 +129,22 @@ function user_turn(){
 };
 // function to insert X or O into table cell depending on user
 function insert_letter(id,mark){
+    var is_winner = false;
+
     var cell = document.getElementById(id);
     cell.className = "chosen";
     cell.innerHTML = mark;
+
+    is_winner = game_event();
+        if(!is_winner){
+            if(draw()){
+                tie();
+            }else{
+                socket.send(JSON.stringify({"type":"next_turn","value":next_user()}))
+            }
+        }else{
+            socket.send(JSON.stringify({"type":"winner","value":{"username":game_winner,"game_id":game_id}}))
+        }
 };
 
 // function to change current users turn
@@ -231,9 +153,9 @@ function change_user(player){
     var newuser = document.getElementById("curr_player")
 
     if(player["username"] == player1["username"]){
-        newuser.innerHTML.replace(player2["username"],player1["username"]);
+        newuser = newuser.innerHTML.replace(player2["username"],player1["username"]);
     }else{
-        newuser.innerHTML.replace(player1["username"],player2["username"]);
+        newuser = newuser.innerHTML.replace(player1["username"],player2["username"]);
     }
 
     document.getElementById("curr_player").innerHTML = newuser;
@@ -246,6 +168,25 @@ function next_user(){
     }else if(curr_users_turn["username"] == player2["username"]){
         return "player1"
     }
+}
+
+// function to check draw
+// if all cells have a mark and game event didn't catch a winner, it is a draw
+function draw(){
+    var cell1 = document.getElementById("1").innerHTML;
+    var cell2 = document.getElementById("2").innerHTML;
+    var cell3 = document.getElementById("3").innerHTML;
+    var cell4 = document.getElementById("4").innerHTML;
+    var cell5 = document.getElementById("5").innerHTML;
+    var cell6 = document.getElementById("6").innerHTML;
+    var cell7 = document.getElementById("7").innerHTML;
+    var cell8 = document.getElementById("8").innerHTML;
+    var cell9 = document.getElementById("9").innerHTML;
+    
+    if(cell1 != "" && cell2 != "" && cell3 != "" && cell4 != "" && cell5 != "" && cell6 != "" && cell7 != "" && cell8 != "" && cell9 != ""){
+        return true
+    }
+    return false
 }
 // function for game logic
 function game_event(){
@@ -310,13 +251,18 @@ function game_event(){
 };
 // function to replace winner label in game.html
 function winner(username){
-    var replace = document.getElementById("winner_label").innerHTML.replace("{{username}}",username);
+    var replace = document.getElementById("winner_label").innerHTML.replace("username!",username+"!");
     document.getElementById("winner_label").innerHTML = replace;
     curr_users_turn = {};
     document.getElementById("curr_player_div").style.display = "none";
     document.getElementById("winner_div").style.display = "block";
 };
-
+function tie(){
+    curr_users_turn = {};
+    document.getElementById("curr_player_div").style.display = "none";
+    document.getElementById("draw_div").style.display = "block";
+}
 function leave_lobby(){
-    window.location.replace('hub');
+    socket.close()
+    setTimeout(() => {window.location.replace('hub');}, 500)
 };

@@ -19,32 +19,35 @@
 <button id="leave_btn" onclick="leave_lobby()">Leave Room</button>
 
 <div class="header">
-    <h1 id="owner_header">{{username}}'s Tic-Tac-Toe Room</h1>
+    <h1 id="owner_header">owner's Tic-Tac-Toe Room</h1>
 </div>
 </br></br>
 <div id="winner_div" style="display:none;">
-    <p id="winner_label">The Winner is {{username}}!</p>
+    <p id="winner_label">The Winner is username!</p>
+</div>
+<div id="draw_div" style="display:none;">
+    <p id="draw_label">It's a tie!</p>
 </div>
 <div id="curr_player_div" style="display:none;">
-    <p id="curr_player">{{username}}'s Turn!</p>
+    <p id="curr_player">username's Turn!</p>
 </div>
 </br></br>
 <div class="game-container">
     <table class="game_table">
         <tr>
-            <td id="1" class="empty"></td>
-            <td id="2" class="empty"></td>
-            <td id="3" class="empty"></td>
+            <td id="1" class="empty" onclick="click_cell('1')"></td>
+            <td id="2" class="empty" onclick="click_cell('2')"></td>
+            <td id="3" class="empty" onclick="click_cell('3')"></td>
         </tr>
         <tr>
-            <td id="4" class="empty"></td>
-            <td id="5" class="empty"></td>
-            <td id="6" class="empty"></td>
+            <td id="4" class="empty" onclick="click_cell('4')"></td>
+            <td id="5" class="empty" onclick="click_cell('5')"></td>
+            <td id="6" class="empty" onclick="click_cell('6')"></td>
         </tr>
         <tr>
-            <td id="7" class="empty"></td>
-            <td id="8" class="empty"></td>
-            <td id="9" class="empty"></td>
+            <td id="7" class="empty" onclick="click_cell('7')"></td>
+            <td id="8" class="empty" onclick="click_cell('8')"></td>
+            <td id="9" class="empty" onclick="click_cell('9')"></td>
         </tr>
     </table>
 </div>
