@@ -135,13 +135,13 @@ def login():
     else:
         flash('Invalid Username or Password!')
         return redirect('/')
-# Receive GET request for logout       
-@app.route('/logout',methods=["GET"])
-def logout():
-    return redirect('/')
+# # Receive GET request for logout       
+# @app.route('/logout',methods=["post"])
+# def logout():
+#     return redirect('/')
 
-@app.route('/websocket', websocket=True)
-def echo():
+@app.route('/game-websocket', websocket=True)
+def game_ws():
     ws = simple_websocket.Server(request.environ)
     try:
         while True:
@@ -187,7 +187,6 @@ def lobby_websckt():
             lobby_members.remove(request_info['username'])
             lobby_collection.update_one({'lobby_id': lobby_id}, {"$set": {'members': lobby_members}})
     return ''
-
 
 @app.route("/lobby", methods=["GET"])
 def createLobby():
