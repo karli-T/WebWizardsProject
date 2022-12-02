@@ -109,7 +109,10 @@ function init_game(curr){
 }
 function click_cell(id){
     if(user_turn(id)){
-        socket.send(JSON.stringify({"type":"board_change","value":{"mark":user["mark"],"id":id}}))
+        var cell = document.getElementById(id).innerHTML;
+        if(cell == ""){
+            socket.send(JSON.stringify({"type":"board_change","value":{"mark":user["mark"],"id":id}}))
+        }
     }
 }
 
