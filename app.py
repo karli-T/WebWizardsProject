@@ -20,10 +20,11 @@ db = mongo_client["WebWizards"]
 users_collection = db["users"]
 users_id_collection = db["user_id"]
 lobby_collection = db['lobby_info']
+game_collection = db['game_info']
 
 # keep track of the websockets each user is using
 user_websockets = {}
-
+game_websockets = {}
 
 # code from Jesse's Lecture on HTML Injection
 def escape_html(comment):
@@ -68,15 +69,6 @@ def hub():
             if len(lobby['members']) == 1:
                 users_to_join.append(lobby['members'][0])
         return render_template("hub.html", user=loads(dumps(info)), leaderboard=leaderboard, lobbies=users_to_join)
-
-
-@app.route("/game", methods=["GET"])
-def game():
-    request_info = database.is_valid_user(request, users_collection)
-    if not request_info['valid']:
-        return redirect('/')
-    else:
-        return render_template("game.html")
 
 
 # Receive POST request for registering
@@ -135,58 +127,13 @@ def login():
     else:
         flash('Invalid Username or Password!')
         return redirect('/')
-# # Receive GET request for logout       
-# @app.route('/logout',methods=["post"])
+
+
+# # Receive GET request for logout
+# @app.route('/logout', methods=["post"])
 # def logout():
 #     return redirect('/')
 
-@app.route('/game-websocket', websocket=True)
-def game_ws():
-    ws = simple_websocket.Server(request.environ)
-    try:
-        while True:
-            data = ws.receive()
-            ws.send(data)
-    except simple_websocket.ConnectionClosed:
-        pass
-    return ''
-
-
-@app.route('/lobby-websocket', websocket=True)
-def lobby_websckt():
-    ws = simple_websocket.Server(request.environ)
-    request_info = database.is_valid_user(request, users_collection)
-    user = request_info['username']
-    user_websockets[user] = ws
-    userinfo = users_collection.find_one({'username': user})
-    lobby_id = userinfo['lobby_id']
-    lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
-    for member in lobby_members:
-        if member != user:
-            if member in user_websockets.keys():
-                if user_websockets[member]:
-                    user_websockets[member].send(user)
-                    ws.send(member)
-    try:
-        while True:
-            data = ws.receive()
-    except simple_websocket.ConnectionClosed:
-        print('here')
-        users_collection.update_one({'username': user}, {"$set": {'lobby_id': None}})
-        user_websockets[user] = None
-        lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
-        if len(lobby_members) == 1:
-            lobby_collection.delete_one({'lobby_id': lobby_id})
-            print('deleted')
-        else:
-            for member in lobby_members:
-                if member != user:
-                    if member in user_websockets.keys():
-                        if user_websockets[member]:
-                            user_websockets[member].send('')
-            lobby_members.remove(request_info['username'])
-            lobby_collection.update_one({'lobby_id': lobby_id}, {"$set": {'members': lobby_members}})
-    return ''
 
 @app.route("/lobby", methods=["GET"])
 def createLobby():
@@ -218,6 +165,143 @@ def joinLobby():
                 lobby_collection.update_one({'lobby_id': lobby}, {"$set": {'members': members}})
                 return render_template("lobby.html", member=joiner)
         return redirect('/')
+
+
+@app.route('/lobby-websocket', websocket=True)
+def lobby_websckt():
+    ws = simple_websocket.Server(request.environ)
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        ws.close()
+        return
+    user = request_info['username']
+    user_websockets[user] = ws
+    userinfo = users_collection.find_one({'username': user})
+    if not ('lobby_id' in userinfo.keys()) or not userinfo['lobby_id']:
+        ws.close()
+        return
+    lobby_id = userinfo['lobby_id']
+    lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
+    for member in lobby_members:
+        if member != user:
+            if member in user_websockets.keys():
+                if user_websockets[member]:
+                    user_websockets[member].send(user)
+                    ws.send(member)
+    try:
+        while True:
+            data = ws.receive()
+            if data == 'start_game':
+                print(data)
+                lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
+                for member in lobby_members:
+                    if member != user:
+                        if member in user_websockets.keys():
+                            if user_websockets[member]:
+                                user_websockets[member].send('send to new game')
+    except simple_websocket.ConnectionClosed:
+        print('here')
+        users_collection.update_one({'username': user}, {"$set": {'lobby_id': None}})
+        user_websockets[user] = None
+        lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
+        if len(lobby_members) == 1:
+            lobby_collection.delete_one({'lobby_id': lobby_id})
+            print('deleted')
+        else:
+            for member in lobby_members:
+                if member != user:
+                    if member in user_websockets.keys():
+                        if user_websockets[member]:
+                            user_websockets[member].send('')
+            lobby_members.remove(request_info['username'])
+            lobby_collection.update_one({'lobby_id': lobby_id}, {"$set": {'members': lobby_members}})
+    return ''
+
+
+@app.route("/game", methods=["GET"])
+def game():
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        return render_template("game.html", username=request_info['username'])
+
+
+@app.route("/create-game", methods=["GET"])
+def create_game():
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        player = request_info['username']
+        userinfo = users_collection.find_one({'username': player})
+        if userinfo and 'lobby_id' in userinfo.keys():
+            lobby_id = userinfo['lobby_id']
+            lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
+            game_token = token_urlsafe(16)
+            for member in lobby_members:
+                users_collection.update_one({'username': member}, {"$set": {'game_id': game_token}})
+            game_collection.insert_one({'game_id': game_token, 'members': lobby_members})
+            return 'game created'
+        else:
+            return
+
+
+@app.route("/validate-new-game", methods=["GET"])
+def game_validation():
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        return redirect('/')
+    else:
+        user = request_info['username']
+        userinfo = users_collection.find_one({'username': user})
+        if userinfo and 'lobby_id' in userinfo.keys():
+            lobby_id = userinfo['lobby_id']
+            lobby_members = lobby_collection.find_one({'lobby_id': lobby_id})['members']
+            if len(lobby_members) == 2:
+                return 'True'
+            else:
+                return 'False'
+        else:
+            return
+
+
+@app.route('/websocket', websocket=True)
+def game_websocket():
+    ws = simple_websocket.Server(request.environ)
+    request_info = database.is_valid_user(request, users_collection)
+    if not request_info['valid']:
+        ws.close()
+        return
+    user = request_info['username']
+    game_websockets[user] = ws
+    userinfo = users_collection.find_one({'username': user})
+    if not ('game_id' in userinfo.keys()) or not userinfo['game_id']:
+        ws.close()
+        return
+    game_id = userinfo['game_id']
+    players = game_collection.find_one({'game_id': game_id})['members']
+    try:
+        while True:
+            data = ws.receive()
+            for player in players:
+                if player != user and (player in game_websockets.keys()) and game_websockets[player]:
+                    game_websockets[player].send(data)
+    except simple_websocket.ConnectionClosed:
+        print('here')
+        users_collection.update_one({'username': user}, {"$set": {'game_id': None}})
+        game_websockets[user] = None
+        game_members = game_collection.find_one({'game_id': game_id})['members']
+        if len(game_members) == 1:
+            game_collection.delete_one({'game_id': game_id})
+            print('deleted')
+        else:
+            for player in players:
+                if player != user and (player in user_websockets.keys()) and user_websockets[player]:
+                    user_websockets[player].send('disconnect')
+            players.remove(user)
+            game_collection.update_one({'game_id': game_id}, {"$set": {'members': players}})
+    return ''
 
 
 if __name__ == "__main__":
