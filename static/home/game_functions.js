@@ -105,6 +105,10 @@ function init_game(curr){
     // console.log(owner)
     document.getElementById("owner_header").innerHTML = owner;
 
+    var user_tag = document.getElementById("user_tag").innerHTML.replace("username",user["username"]);
+    document.getElementById("user_tag").innerHTML = user_tag;
+    document.getElementById("user_tag").style.display = "block"
+
         // console.log(curr_users_turn)
 }
 function click_cell(id){

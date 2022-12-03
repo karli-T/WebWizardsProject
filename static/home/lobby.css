@@ -12,7 +12,16 @@ h1 {
     align-items: center !important;
     font-size: 60px !important;
 }
-
+#user_tag {
+    float: right;
+    margin-right: 15px;
+    margin-top: 10px;
+    width: auto;
+    text-align: center;
+    padding: 8px;
+    border-radius: 15px;
+    border: solid 2px #B565E3;
+}
 .member-list {
     margin-left: 200px;
     margin-right: 200px;

@@ -16,7 +16,11 @@
 <script src="/static/home/game_functions.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
-<button id="leave_btn" onclick="leave_lobby()">Leave Room</button>
+<div class="container-header">
+    <button id="leave_btn" onclick="leave_lobby()">Leave Room</button>
+    <p id="user_tag" style="display:none;">username</p>
+</div>
+
 
 <div class="header">
     <h1 id="owner_header">owner's Tic-Tac-Toe Room</h1>
