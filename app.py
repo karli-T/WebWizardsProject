@@ -129,10 +129,12 @@ def login():
         return redirect('/')
 
 
-# # Receive GET request for logout
-# @app.route('/logout', methods=["post"])
-# def logout():
-#     return redirect('/')
+# Receive GET request for logout
+@app.route('/logout', methods=["post"])
+def logout():
+    resp = make_response(redirect('/get-hub'))
+    resp.headers['Set-Cookie'] = 'auth_token=' + '' + '; HttpOnly'
+    return resp
 
 
 @app.route("/lobby", methods=["GET"])
