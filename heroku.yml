@@ -1,0 +1,6 @@
+# code from CSE 312 Slides
+build:
+  docker:
+    web: Dockerfile
+# run:
+#   web: docker-compose up
