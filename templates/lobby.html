@@ -12,7 +12,7 @@
 
 
 <div class="header">
-    <p id="user_tag">{{member}}</p>
+    <p id="user_tag">{{member|safe}}</p>
     <h1>Lobby</h1>
 </div>
 <br />
@@ -24,7 +24,7 @@
 </button>
 <div class="member-list">
     <div style="padding-left: 10px">Members:</div>
-    <div style="padding-left: 10px">{{member}}</div>
+    <div style="padding-left: 10px">{{member|safe}}</div>
     <div style="padding-left: 10px" id="member-2"></div>
 </div>
 

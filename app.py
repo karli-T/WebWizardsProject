@@ -1,4 +1,6 @@
 # import Flask : https://flask.palletsprojects.com/en/2.2.x/quickstart/
+import secrets
+
 from flask import Flask, request, render_template, flash, redirect, url_for, make_response, request
 # pymongo database 
 from pymongo import MongoClient
@@ -34,7 +36,7 @@ def escape_html(comment):
 
 # Flask Setup
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '3333333333'
+app.config['SECRET_KEY'] = secrets.token_urlsafe(10)
 app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 5}
 
 
